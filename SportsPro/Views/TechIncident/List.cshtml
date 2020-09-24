@@ -1,0 +1,38 @@
+﻿@model IncidentViewModel
+@using Microsoft.AspNetCore.Http
+@{
+    ViewData["Title"] = "List Incidents for Technician";
+    
+    int? sessionID = Context.Session.GetInt32("sessionID");
+}
+
+<h1>Technician: @Model.ActiveTechnician.Name</h1>
+<h1>Assigned/Open Incidents</h1>
+
+<table class="table table-bordered table-danger">
+    <thead>
+        <tr>
+            <th scope="col">Title</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Product</th>
+            <th scope="col">Date Opened</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Incident incident in Model.Incidents)
+        {
+        <tr>
+            <td>@incident.Title</td>
+            <td>@incident.Customer.FullName</td>
+            <td>@incident.Product.Name</td>
+            <td>@incident.DateOpened.ToShortDateString()</td>
+            <td>
+                <a asp-controller="TechIncident" asp-action="Edit"
+                   asp-route-id="@incident.IncidentID">Edit</a>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+<a class="btn btn-success" asp-controller="TechIncident" asp-action="Get">Switch Technician</a>

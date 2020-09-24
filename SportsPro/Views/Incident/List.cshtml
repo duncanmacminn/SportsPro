@@ -1,0 +1,52 @@
+﻿@model IncidentViewModel
+@using Microsoft.AspNetCore.Http
+@{
+    ViewData["Title"] = "Incident Manager";
+    string? FilterString = Context.Session.GetString("FilterString");
+}
+
+<h1>Incident Manager</h1>
+
+<br />
+    <ul class="nav nav-pills">
+        <li class="nav-item"><a class="nav-link @((FilterString == "null" || FilterString == null) ? "active": "")" asp-controller="Incident" asp-action="FilterAll">All incidents</a></li>
+        <li class="nav-item"><a class="nav-link @(FilterString == "unassigned" ? "active": "")" asp-controller="Incident" asp-action="FilterUnassigned">Unassigned incidents</a></li>
+        <li class="nav-item"><a class="nav-link @(FilterString == "open" ? "active": "")" asp-controller="Incident" asp-action="FilterOpen">Open incidents</a></li>
+    </ul>
+<br />
+
+
+<table class="table table-bordered table-danger">
+    <thead>
+        <tr>
+            <th scope="col">Title</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Product</th>
+            <th scope="col">Date Opened</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Incident incident in Model.Incidents)
+        {
+            <tr>
+                <td>@incident.Title</td>
+                <td>@incident.Customer.FullName</td>
+                <td>@incident.Product.Name</td>
+                <td>@incident.DateOpened.ToShortDateString()</td>
+                <td>
+                    <a asp-controller="Incident" asp-action="Edit"
+                       asp-route-id="@incident.IncidentID">Edit</a>
+                </td>
+                <td>
+                    <a asp-controller="Incident" asp-action="Delete"
+                       asp-route-id="@incident.IncidentID">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+
+
+</table>
+<a class="btn btn-success" asp-controller="Incident" asp-action="Add">Add New Incident</a>
