@@ -76,6 +76,15 @@ namespace SportsPro.Controllers
             return RedirectToAction("List", "Customer");
         }
 
+        public JsonResult CheckEmail(string email)
+        {
+            Customer cust = context.Customers.FirstOrDefault(c => c.Email == email);
+
+            if (cust == null)
+                return Json(true);
+            else
+                return Json($"The customer email: {email} already exists.");
+        }
 
     }
 
