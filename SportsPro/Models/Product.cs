@@ -21,5 +21,6 @@ namespace SportsPro.Models
 
 		public DateTime ReleaseDate { get; set; } = DateTime.Today.Date;
 
+		public ICollection<Registration> Registrations { get; set; }
 	}
 }

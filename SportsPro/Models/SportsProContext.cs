@@ -15,6 +15,8 @@ namespace SportsPro.Models
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Incident> Incidents { get; set; }
 
+        public DbSet<Registration> Registrations { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Product>().HasData(
@@ -298,6 +300,21 @@ namespace SportsPro.Models
                     DateClosed = null
                 }
             );
+            //Added the following code:
+            modelBuilder.Entity<Registration>()
+                .HasKey(reg => new { reg.CustomerID, reg.ProductID });
+
+           
+            
+            modelBuilder.Entity<Registration>()
+                .HasOne(reg => reg.Product)
+                .WithMany(p => p.Registrations)
+                .HasForeignKey(reg => reg.ProductID);
+            
+            modelBuilder.Entity<Registration>()
+               .HasOne(reg => reg.Customer)
+               .WithMany(c => c.Registrations)
+               .HasForeignKey(reg => reg.CustomerID);
         }
     }
 }
