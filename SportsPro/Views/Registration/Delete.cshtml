@@ -1,0 +1,14 @@
+﻿@model RegistrationViewModel
+@{
+    ViewData["Title"] = "Delete Product Registration";
+}
+
+<h1>Confirm Deletion</h1>
+<h2>@Model.ActiveCustomer.FullName : @Model.</h2>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="@Model.ProductID" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-controller="Registration" asp-action="List" class="btn btn-dark">Cancel</a>
+
+</form>

@@ -39,7 +39,7 @@ namespace SportsPro.Controllers
         {
             HttpContext.Session.SetInt32("sessionID", customerId);
             int? sessionID = HttpContext.Session.GetInt32("sessionID");
-            if (customerId == 0 && sessionID == null)
+            if (customerId == 0 || sessionID == null)
             {
                 TempData["message"] = "Please select a customer";
                 return RedirectToAction("GetCustomer");
@@ -63,7 +63,7 @@ namespace SportsPro.Controllers
             }
         }
 
-        
+
         [HttpPost]
         public IActionResult Add(Registration registration)
         {
@@ -83,20 +83,42 @@ namespace SportsPro.Controllers
 
         [HttpGet]
         public IActionResult Delete(int id)
+
         {
-            var incident = context.Incidents.Find(id);
-            ViewBag.Customers = context.Customers.OrderBy(c => c.FirstName).ToList();
-            ViewBag.Products = context.Products.OrderBy(p => p.Name).ToList();
-            return View(incident);
+
+            int? sessionID = HttpContext.Session.GetInt32("sessionID");
+
+
+            var registration2 = context.Registrations.Find(sessionID, id);
+
+
+            context.Registrations.Remove(registration2);
+
+            context.SaveChanges();
+
+            return RedirectToAction("List", registration2);
         }
 
-        [HttpPost]
-        public IActionResult Delete(Incident incident)
-        {
-            context.Incidents.Remove(incident);
-            context.SaveChanges();
-            return RedirectToAction("List", "Incident");
-        }
+        //[HttpPost]
+        //public IActionResult DeleteRegistration(int id)
+
+        //{
+
+        //    int? sessionID = HttpContext.Session.GetInt32("sessionID");
+
+        //    var id2 = Request.Form["ProductID"];
+        //    var registration = context.Registrations.Find(sessionID, id2);
+
+
+
+        //    context.Registrations.Remove(registration);
+
+
+        //    context.SaveChanges();
+
+        //    return RedirectToAction("List",sessionID);
+        //}
+
 
 
     }

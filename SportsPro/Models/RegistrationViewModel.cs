@@ -18,6 +18,9 @@ namespace SportsPro.Models
 
 		public int ProductID { get; set; }
 
+		public Product ActiveProduct { get; set; }
+
+
 
 	}
 }
