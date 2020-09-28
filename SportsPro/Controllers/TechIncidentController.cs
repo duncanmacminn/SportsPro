@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using SportsPro.Models;
+using SportsPro.DataLayer;
 
 namespace SportsPro.Controllers
 {

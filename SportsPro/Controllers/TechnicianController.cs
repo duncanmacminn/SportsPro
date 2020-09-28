@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SportsPro.Models;
+using SportsPro.DataLayer;
 
 namespace SportsPro.Controllers
 {
