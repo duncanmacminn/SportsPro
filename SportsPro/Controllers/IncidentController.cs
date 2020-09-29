@@ -7,16 +7,17 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using SportsPro.Models;
 using SportsPro.DataLayer;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace SportsPro.Controllers
 {
     public class IncidentController : Controller
     {
-        private SportsProContext context { get; set; }
+        private ISportsProUnitOfWork data { get; set; }
 
-        public IncidentController(SportsProContext ctx)
+        public IncidentController(ISportsProUnitOfWork unit)
         {
-            context = ctx;
+            data = unit;
         }
 
         [Route("Incidents")]
@@ -25,27 +26,32 @@ namespace SportsPro.Controllers
             string? FilterString = HttpContext.Session.GetString("FilterString");
             Incident activeIncident = new Incident();
             Technician activeTechnician = new Technician();
-            var model = new IncidentViewModel
+            var IncidentOptions = new QueryOptions<Incident>
             {
-                ActiveIncident = activeIncident,
-                ActiveTechnician = activeTechnician,
-                Incidents = context.Incidents.ToList(),
-                Technicians = context.Technicians.ToList(),
-                Customers = context.Customers.ToList(),
-                Products = context.Products.ToList()
+                
+                Includes = "Customers,Products"
+               
+            
             };
-            IQueryable<Incident> query = context.Incidents;
-            if (FilterString != null)
-            {
-                if (FilterString == "unassigned")
-                    query = query.Where(i => i.TechnicianID == null);
-                if (FilterString == "open")
-                    query = query.Where(i => i.DateClosed == null);
-            }
-            model.Incidents = query.ToList();
-            return View(model);
-        }
+            if (FilterString == "unassigned") { IncidentOptions.Where = i => i.TechnicianID == null; };
 
+            if (FilterString == "open") { IncidentOptions.Where = i => i.DateClosed == null; };
+            var incidents = data.Incidents.List(IncidentOptions);
+
+
+
+
+
+            var CustomerOptions = new QueryOptions<Customer>();
+            var TechnicianOptions = new QueryOptions<Technician>();
+            var ProductOptions = new QueryOptions<Product>();
+
+
+            
+          
+            return View(incidents);
+        }
+        //Stopped here
         [HttpGet]
         public ViewResult Add()
         {

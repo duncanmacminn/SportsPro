@@ -21,5 +21,6 @@ namespace SportsPro.DataLayer
 
         public bool HasWhere => Where != null;
         public bool HasOrderBy => OrderBy != null;
+
     }
 }

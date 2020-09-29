@@ -6,58 +6,69 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SportsPro.Models;
 using SportsPro.DataLayer;
+using Microsoft.AspNetCore.Http;
 
 namespace SportsPro.Controllers
 {
     public class CustomerController : Controller
     {
-        private SportsProContext context { get; set; }
+        private ISportsProUnitOfWork data { get; set; }
+       
 
-        public CustomerController(SportsProContext ctx)
+        public CustomerController(ISportsProUnitOfWork unit)
         {
-            context = ctx;
+            data = unit;
         }
 
         [Route("Customers")]
+
         public IActionResult List()
         {
-            var customers = context.Customers.ToList();
+            var customerOptions = new QueryOptions<Customer>();
+            var customers = data.Customers.List(customerOptions);
             return View(customers);
         }
 
         [HttpGet]
         public IActionResult Add()
         {
+           HttpContext.Session.SetString("action", "Add");
+            var countryOptions = new QueryOptions<Country> { OrderBy = c => c.Name};
             ViewBag.Action = "Add";
-            ViewBag.Countries = context.Countries.OrderBy(c => c.Name).ToList();
+            ViewBag.Countries = data.Countries.List(countryOptions);
             return View("AddEdit", new Customer());
         }
 
         [HttpGet]
         public IActionResult Edit(int id)
         {
+            HttpContext.Session.SetString("action", "Edit");
+            var countryOptions = new QueryOptions<Country> { OrderBy = c => c.Name };
+
             ViewBag.Action = "Edit";
-            ViewBag.Countries = context.Countries.OrderBy(c => c.Name).ToList();
-            var customer = context.Customers.Find(id);
+            ViewBag.Countries = data.Countries.List(countryOptions);
+            var customer = data.Customers.Get(id);
             return View("AddEdit", customer);
         }
 
         [HttpPost]
         public IActionResult Edit(Customer customer)
         {
+
             if (ModelState.IsValid)
             {
                 if (customer.CustomerID == 0)
-                    context.Customers.Add(customer);
+                    data.Customers.Insert(customer);
                 else
-                    context.Customers.Update(customer);
-                context.SaveChanges();
+                    data.Customers.Update(customer);
+                data.Customers.Save();
                 return RedirectToAction("List", "Customer");
             }
             else
             {
+                var countryOptions = new QueryOptions<Country> { OrderBy = c => c.Name };
                 ViewBag.Action = (customer.CustomerID == 0) ? "Add" : "Edit";
-                ViewBag.Countries = context.Countries.OrderBy(c => c.Name).ToList();
+                ViewBag.Countries = data.Countries.List(countryOptions);
                 return View(customer);
             }
         }
@@ -65,28 +76,57 @@ namespace SportsPro.Controllers
         [HttpGet]
         public IActionResult Delete(int id)
         {
-            var customer = context.Customers.Find(id);
+           
+            var customer = data.Customers.Get(id);
             return View(customer);
         }
 
         [HttpPost]
         public IActionResult Delete(Customer customer)
         {
-            context.Customers.Remove(customer);
-            context.SaveChanges();
+            data.Customers.Delete (customer);
+            data.Customers.Save();
             return RedirectToAction("List", "Customer");
         }
 
         public JsonResult CheckEmail(string email)
         {
-            Customer cust = context.Customers.FirstOrDefault(c => c.Email == email);
 
-            if (cust == null)
-                return Json(true);
-            else
-                return Json($"The customer email: {email} already exists.");
+            string action = HttpContext.Session.GetString("action");
+            int duplication;
+            if (action == "Add") { duplication = 0; }
+            else { duplication = 1; }
+          
+
+
+
+            var customerOptions = new QueryOptions<Customer> { Where = c => c.Email == email };
+
+                IEnumerable<Customer> custs = data.Customers.List(customerOptions);
+
+                bool uniqueemail = false;
+
+                if (custs.Count() > duplication)
+
+                {
+
+                    uniqueemail = false;
+
+                }
+
+                else uniqueemail = true;
+
+                if (uniqueemail == true)
+
+                    return Json(true);
+
+                else
+
+                    return Json($"The customer email: {email} already exists.");
+
+            }
         }
 
     }
 
-}
+
