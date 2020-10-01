@@ -11,8 +11,6 @@ namespace SportsPro.Controllers
 {
      public class ProductController : Controller
     {
-        //private Repository<Product> data { get; set; }
-        //public ProductController(SportsProContext ctx) => data = new Repository<Product>(ctx); // tried changing to match ch15 soln, did not work??
         private IRepository<Product> data { get; set; }
 
         public ProductController(IRepository<Product> ctx) => data = ctx;
@@ -47,13 +45,11 @@ namespace SportsPro.Controllers
                 if (product.ProductID == 0)
                 {
                     data.Insert(product);
-                    //data.Save();
                     TempData["message"] = $"{product.Name} was successfully added.";
                 }
                 else
                 {
                     data.Update(product);
-                    //data.Save();
                     TempData["message"] = $"{product.Name} was successfully edited.";
                 }
                 data.Save();
