@@ -1,4 +1,4 @@
-﻿@model IncidentViewModel
+﻿@model IEnumerable<Incident>
 @using Microsoft.AspNetCore.Http
 @{
     ViewData["Title"] = "Incident Manager";
@@ -28,7 +28,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (Incident incident in Model.Incidents)
+        @foreach (Incident incident in Model)
         {
             <tr>
                 <td>@incident.Title</td>

@@ -7,7 +7,7 @@ namespace SportsPro.DataLayer
 {
     public interface IRepository<T> where T : class
     {
-        IEnumerable<T> List(QueryOptions<T> options);
+        List<T> List(QueryOptions<T> options);
 
         T Get(int id);
         T Get(QueryOptions<T> options);

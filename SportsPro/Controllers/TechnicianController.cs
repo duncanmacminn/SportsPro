@@ -11,37 +11,20 @@ namespace SportsPro.Controllers
 {
     public class TechnicianController : Controller
     {
-        private SportsProContext context { get; set; }
+        private IRepository<Technician> data { get; set; }
 
-        public TechnicianController(SportsProContext ctx)
+        public TechnicianController(IRepository<Technician> ctx)
         {
-            context = ctx;
+            data = ctx;
         }
 
         [Route("Technicians")]
         public IActionResult List()
         {
-            var technicians = context.Technicians.ToList();
+            var technicians = data.List(new QueryOptions<Technician>());
             return View(technicians);
         }
-        //public ViewResult List(string activeIncident = "All", string activeTechnician = "All")
-        //{
-        //    var model = new IncidentViewModel
-        //    {
-        //        ActiveIncident = activeIncident,
-        //        ActiveTechnicain = activeTechnician,
-        //        Incidents = context.Incidents.ToList(),
-        //        Technicians = context.Technicians.ToList()
-        //    };
-        //    IQueryable<Incident> query = context.Incidents;
-        //    if (activeIncident != "All")
-        //        query = query.Where(i => i.IncidentID.ToString() == activeIncident);
-        //    if (activeTechnician != "All")
-        //        query = query.Where(i => i.Technician.TechnicianID.ToString() == activeTechnician);
-        //    model.Incidents = query.ToList();
-        //    return View(model);
-        //}
-
+        
         [HttpGet]
         public IActionResult Add()
         {
@@ -53,7 +36,7 @@ namespace SportsPro.Controllers
         public IActionResult Edit(int id)
         {
             ViewBag.Action = "Edit";
-            var technician = context.Technicians.Find(id);
+            var technician = data.Get(id);
             return View("AddEdit", technician);
         }
 
@@ -64,11 +47,15 @@ namespace SportsPro.Controllers
             {
                 if (technician.TechnicianID == 0)
                 {
-                    context.Technicians.Add(technician);
+                    data.Insert(technician);
+                    TempData["message"] = $"{technician.Name} was successfully added.";
                 }
                 else
-                    context.Technicians.Update(technician);
-                context.SaveChanges();
+                {
+                    data.Update(technician);
+                    TempData["message"] = $"{technician.Name} was successfully updated.";
+                }
+                data.Save();
                 return RedirectToAction("List", "Technician");
             }
             else
@@ -81,15 +68,15 @@ namespace SportsPro.Controllers
         [HttpGet]
         public IActionResult Delete(int id)
         {
-            var technician = context.Technicians.Find(id);
+            var technician = data.Get(id);
             return View(technician);
         }
 
         [HttpPost]
         public IActionResult Delete(Technician technician)
         {
-            context.Technicians.Remove(technician);
-            context.SaveChanges();
+            data.Delete(technician);
+            data.Save();
             return RedirectToAction("List", "Technician");
         }
 

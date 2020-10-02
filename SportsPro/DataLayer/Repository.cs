@@ -17,7 +17,7 @@ namespace SportsPro.DataLayer
             dbset = context.Set<T>();
         }
 
-        public virtual IEnumerable<T> List(QueryOptions<T> options)
+        public virtual List<T> List(QueryOptions<T> options)
         {
             IQueryable<T> query = dbset;
             foreach (string include in options.GetIncludes())
