@@ -23,7 +23,7 @@
             <td>@registration.Product.Name</td>
             <td>
                 <a asp-controller="Registration" asp-action="Delete"
-                   asp-route-id="@registration.ProductID">Delete</a>
+                   asp-route-id="@registration.ProductID" asp-for ="@registration.ProductID">Delete</a>
             </td>
         </tr>
         }

@@ -25,7 +25,12 @@ namespace SportsPro.DataLayer
                 query = query.Include(include);
             }
             if (options.HasWhere)
-                query = query.Where(options.Where);
+                foreach (var clause in options.WhereClauses)
+                {
+
+                    query = query.Where(clause);
+
+                }
             if (options.HasOrderBy)
                 query = query.OrderBy(options.OrderBy);
             return query.ToList();
@@ -41,7 +46,15 @@ namespace SportsPro.DataLayer
                 query = query.Include(include);
             }
             if (options.HasWhere)
-                query = query.Where(options.Where);
+            {
+
+                foreach (var clause in options.WhereClauses)
+                {
+
+                    query = query.Where(clause);
+
+                }
+            }
             return query.FirstOrDefault();
         }
 

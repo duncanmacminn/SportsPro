@@ -12,11 +12,11 @@ namespace SportsPro.Controllers
 {
     public class RegistrationController : Controller
     {
-        private SportsProContext context { get; set; }
+        private ISportsProUnitOfWork data { get; set; }
 
-        public RegistrationController(SportsProContext ctx)
+        public RegistrationController(ISportsProUnitOfWork ctx)
         {
-            context = ctx;
+            data = ctx;
         }
 
         public ViewResult GetCustomer()
@@ -27,11 +27,11 @@ namespace SportsPro.Controllers
             var model = new RegistrationViewModel
             {
                 ActiveCustomer = activeCustomer,
-                Customers = context.Customers.ToList(),
-                Products = context.Products.ToList()
+                Customers = data.Customers.List(new QueryOptions<Customer> ()),
+                Products = data.Products.List(new QueryOptions<Product>())
             };
-            IQueryable<Customer> query = context.Customers;
-            model.Customers = query.ToList();
+            
+          
             return View(model);
         }
 
@@ -49,13 +49,20 @@ namespace SportsPro.Controllers
             {
                 if (customerId == 0) customerId = (int)sessionID;
                 var model = new RegistrationViewModel();
-                model.ActiveCustomer = context.Customers.Find(customerId);
-                model.Customers = context.Customers.ToList();
-                model.Products = context.Products.ToList();
+                model.ActiveCustomer = data.Customers.Get(customerId);
+                model.Customers = data.Customers.List(new QueryOptions<Customer>());
+                model.Products = data.Products.List(new QueryOptions<Product>());
+                model.Registrations = data.Registrations.List(new QueryOptions<Registration>
+                {
+                    Includes = "Customer,Product",
+                    WhereClauses = new WhereClauses<Registration>
+                    {
+                        {t => t.CustomerID == model.ActiveCustomer.CustomerID}
 
-                IQueryable<Registration> query = context.Registrations;
-                query = query.Where(p => p.CustomerID == model.ActiveCustomer.CustomerID);
-                model.Registrations = query.ToList();
+                    }
+
+
+                });
 
                 if (model.Registrations.Count == 0)
                     TempData["message"] = $"No products are registered for this customer.";
@@ -76,8 +83,8 @@ namespace SportsPro.Controllers
             }
             else
             {
-                context.Registrations.Add(registration);
-                context.SaveChanges();
+                data.Registrations.Insert(registration);
+                data.Registrations.Save();
                 return RedirectToAction("List", registration);
             }
         }
@@ -86,18 +93,32 @@ namespace SportsPro.Controllers
         public IActionResult Delete(int id)
 
         {
+            
 
-            int? sessionID = HttpContext.Session.GetInt32("sessionID");
+            int? CustomerSessionID = HttpContext.Session.GetInt32("sessionID");
+
+            var registrations = data.Registrations.Get(new QueryOptions<Registration>
+            {
+                Includes = "Customer,Product",
+                WhereClauses = new WhereClauses<Registration>
+                    {
+                        {t => t.CustomerID == CustomerSessionID},
+                        {g => g.ProductID == id}
+
+                }
 
 
-            var registration2 = context.Registrations.Find(sessionID, id);
+            });
 
 
-            context.Registrations.Remove(registration2);
+            
 
-            context.SaveChanges();
 
-            return RedirectToAction("List", registration2);
+            data.Registrations.Delete(registrations);
+
+            data.Registrations.Save();
+
+            return RedirectToAction("List", registrations);
         }
 
         //[HttpPost]

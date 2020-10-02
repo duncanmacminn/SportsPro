@@ -8,7 +8,18 @@ namespace SportsPro.DataLayer
     public class QueryOptions<T>
     {
         public Expression<Func<T, Object>> OrderBy { get; set; }
-        public Expression<Func<T, bool>> Where { get; set; }
+        public Expression<Func<T, bool>> Where
+        {
+            set
+            {
+                if (WhereClauses == null)
+                {
+                    WhereClauses = new WhereClauses<T>();
+                }
+                WhereClauses.Add(value);
+            }
+        }
+        //public Expression<Func<T, bool>> Where { get; set; }
 
         private string[] includes;
 
@@ -19,8 +30,16 @@ namespace SportsPro.DataLayer
 
         public string[] GetIncludes() => includes ?? new string[0];
 
-        public bool HasWhere => Where != null;
+        public bool HasWhere => WhereClauses != null;
         public bool HasOrderBy => OrderBy != null;
 
+        public WhereClauses<T> WhereClauses { get; set; }
+
+        
+    
     }
+    public class WhereClauses<T> : List<Expression<Func<T, bool>>> { }
+
 }
+
+

@@ -12,57 +12,74 @@ namespace SportsPro.Controllers
 {
     public class TechIncidentController : Controller
     {
-        private SportsProContext context { get; set; }
+        private ISportsProUnitOfWork data { get; set; }
 
-        public TechIncidentController(SportsProContext ctx)
+        public TechIncidentController(ISportsProUnitOfWork ctx)
         {
-            context = ctx;
+            data = ctx;
         }
 
         public ViewResult Get()
         {
+            var incidentOptions = new QueryOptions<Incident> { Includes = "Customer,Product" };
+
+            var technicianOptions = new QueryOptions<Technician>();
+            var customerOptions = new QueryOptions<Customer>();
+            var productOptions = new QueryOptions<Product>();
             HttpContext.Session.Remove("sessionID");
             Incident activeIncident = new Incident();
             Technician activeTechnician = new Technician();
             var model = new IncidentViewModel
             {
+
                 ActiveIncident = activeIncident,
                 ActiveTechnician = activeTechnician,
-                Incidents = context.Incidents.ToList(),
-                Technicians = context.Technicians.ToList(),
-                Customers = context.Customers.ToList(),
-                Products = context.Products.ToList()
+                Incidents = data.Incidents.List(incidentOptions),
+                Technicians = data.Technicians.List(technicianOptions),
+                Customers = data.Customers.List(customerOptions),
+                Products = data.Products.List(productOptions)
             };
-            IQueryable<Incident> query = context.Incidents;
-            if (activeIncident.IncidentID != 0)
-                query = query.Where(i => i.IncidentID == activeIncident.IncidentID);
-            if (activeTechnician.TechnicianID != 0)
-                query = query.Where(i => i.Technician.TechnicianID == activeTechnician.TechnicianID);
-            model.Incidents = query.ToList();
+
             return View(model);
         }
 
         [HttpGet]
         public IActionResult List(int technicianId)
         {
+
+            var incidentOptions = new QueryOptions<Incident>
+            {
+                Includes = "Customer,Product",
+                WhereClauses = new WhereClauses<Incident>
+                {
+                    {t => t.TechnicianID == technicianId },
+                    {i => i.DateClosed == null}
+
+                }
+            
+            };
+           
+
+            var technicianOptions = new QueryOptions<Technician>();
+            var customerOptions = new QueryOptions<Customer>();
+            var productOptions = new QueryOptions<Product>();
             int? sessionID = HttpContext.Session.GetInt32("sessionID");
             if (technicianId == 0 && sessionID == null)
             {
                 TempData["message"] = "Please select a technician";
                 return RedirectToAction("Get");
             }
+           
             else
             {
                 if (technicianId == 0) technicianId = (int)sessionID;
                 var model = new IncidentViewModel();
-                model.ActiveTechnician = context.Technicians.Find(technicianId);
-                model.Customers = context.Customers.ToList();
-                model.Products = context.Products.ToList();
+                model.ActiveTechnician = data.Technicians.Get(technicianId);
+                //model.Customers = data.Customers.List(customerOptions);
+                //model.Products = data.Products.List(productOptions);
 
-                IQueryable<Incident> query = context.Incidents;
-                query = query.Where(i => i.TechnicianID == model.ActiveTechnician.TechnicianID);
-                query = query.Where(i => i.DateClosed == null);
-                model.Incidents = query.ToList();
+                
+                model.Incidents = data.Incidents.List(incidentOptions);
 
                 if (model.Incidents.Count == 0)
                     TempData["message"] = $"No open incidents for this technician.";
@@ -74,21 +91,27 @@ namespace SportsPro.Controllers
         [HttpGet]
         public ViewResult Edit(int id)
         {
-            Incident activeIncident = context.Incidents.Find(id);
+            Incident activeIncident = data.Incidents.Get(id);
             var model = new IncidentViewModel
             {
                 ActiveIncident = activeIncident,
-                Incidents = context.Incidents.ToList(),
-                Technicians = context.Technicians.ToList(),
-                Customers = context.Customers.ToList(),
-                Products = context.Products.ToList(),
+                Incidents = data.Incidents.List(new QueryOptions<Incident>
+                {
+                    Includes = "Customer,Product",
+                    WhereClauses = new WhereClauses<Incident>
+                    {
+                        {t => t.IncidentID == id }
+
+                    }
+                }),
+                Technicians = data.Technicians.List(new QueryOptions<Technician>()),
+                Customers = data.Customers.List(new QueryOptions<Customer>()),
+                Products = data.Products.List(new QueryOptions<Product>()),
                 Action = "Edit"
             };
-            IQueryable<Incident> query = context.Incidents;
-            if (activeIncident.IncidentID != 0)
-                query = query.Where(i => i.IncidentID == activeIncident.IncidentID);
-            model.Incidents = query.ToList();
-            model.ActiveIncident = context.Incidents.Find(id);
+            
+            
+           
             HttpContext.Session.SetInt32("sessionID", (int)model.ActiveIncident.TechnicianID);
             return View("Edit", model);
         }
@@ -99,34 +122,16 @@ namespace SportsPro.Controllers
             if (ModelState.IsValid)
             {
                 TempData["message"] = $"Incident updated successfully.";
-                context.Incidents.Update(model.ActiveIncident);
-                context.SaveChanges();
+                data.Incidents.Update(model.ActiveIncident);
+                data.Incidents.Save();
                 return RedirectToAction("List", "TechIncident");
             }
             else
             {
-                model.ActiveIncident = context.Incidents.Find(model.ActiveIncident.IncidentID);
+                model.ActiveIncident = data.Incidents.Get(model.ActiveIncident.IncidentID);
                 return View("Edit", model);
             }
         }
-
-        [HttpGet]
-        public IActionResult Delete(int id)
-        {
-            var incident = context.Incidents.Find(id);
-            ViewBag.Customers = context.Customers.OrderBy(c => c.FirstName).ToList();
-            ViewBag.Products = context.Products.OrderBy(p => p.Name).ToList();
-            return View(incident);
-        }
-
-        [HttpPost]
-        public IActionResult Delete(Incident incident)
-        {
-            context.Incidents.Remove(incident);
-            context.SaveChanges();
-            return RedirectToAction("List", "Incident");
-        }
-
 
     }
 

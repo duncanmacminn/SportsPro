@@ -96,9 +96,6 @@ namespace SportsPro.Controllers
             int duplication;
             if (action == "Add") { duplication = 0; }
             else { duplication = 1; }
-          
-
-
 
             var customerOptions = new QueryOptions<Customer> { Where = c => c.Email == email };
 
@@ -109,20 +106,15 @@ namespace SportsPro.Controllers
                 if (custs.Count() > duplication)
 
                 {
-
                     uniqueemail = false;
-
                 }
-
                 else uniqueemail = true;
-
                 if (uniqueemail == true)
 
                     return Json(true);
 
                 else
-
-                    return Json($"The customer email: {email} already exists.");
+                return Json($"The customer email: {email} already exists.");
 
             }
         }
