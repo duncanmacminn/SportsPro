@@ -42,7 +42,7 @@ namespace SportsPro.Models
 		[Required(ErrorMessage = "Email Required.")]
 		[StringLength(51, ErrorMessage = "Must be 51 characters or less")]
 		[DataType(DataType.EmailAddress)]
-		[Remote("CheckEmail","Customer")]
+		[Remote("CheckEmail","Validation")]
 		public string Email { get; set; }
 
 		public string FullName => FirstName + " " + LastName;   // read-only property

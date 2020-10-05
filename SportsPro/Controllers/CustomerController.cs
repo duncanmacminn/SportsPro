@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using SportsPro.Models;
 using SportsPro.DataLayer;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
 
 namespace SportsPro.Controllers
 {
@@ -54,7 +56,22 @@ namespace SportsPro.Controllers
         [HttpPost]
         public IActionResult Edit(Customer customer)
         {
+            string action = HttpContext.Session.GetString("action");
+            int duplication;
+            if (action == "Add") { duplication = 0; }
+            else { duplication = 1; }
 
+
+            var validate = new Validate(TempData);
+            if (!validate.IsEmailChecked)
+            {
+                validate.CheckEmail(customer.CustomerID, data.Customers, duplication);
+                if (!validate.IsValid)
+                {
+                    ModelState.AddModelError(nameof(customer.CustomerID), validate.ErrorMessage);
+
+                }   
+            }
             if (ModelState.IsValid)
             {
                 if (customer.CustomerID == 0)
@@ -62,15 +79,30 @@ namespace SportsPro.Controllers
                 else
                     data.Customers.Update(customer);
                 data.Customers.Save();
+                validate.ClearEmail();
+                TempData["message"] = $"{customer.FullName} added to customers.";
                 return RedirectToAction("List", "Customer");
             }
             else
             {
-                var countryOptions = new QueryOptions<Country> { OrderBy = c => c.Name };
-                ViewBag.Action = (customer.CustomerID == 0) ? "Add" : "Edit";
-                ViewBag.Countries = data.Countries.List(countryOptions);
-                return View(customer);
+                return View("Customer", customer);
             }
+            //if (ModelState.IsValid)
+            //{
+            //    if (customer.CustomerID == 0)
+            //        data.Customers.Insert(customer);
+            //    else
+            //        data.Customers.Update(customer);
+            //    data.Customers.Save();
+            //    return RedirectToAction("List", "Customer");
+            //}
+            //else
+            //{
+            //    var countryOptions = new QueryOptions<Country> { OrderBy = c => c.Name };
+            //    ViewBag.Action = (customer.CustomerID == 0) ? "Add" : "Edit";
+            //    ViewBag.Countries = data.Countries.List(countryOptions);
+            //    return View(customer);
+            //}
         }
 
         [HttpGet]
@@ -89,34 +121,34 @@ namespace SportsPro.Controllers
             return RedirectToAction("List", "Customer");
         }
 
-        public JsonResult CheckEmail(string email)
-        {
+        //public JsonResult CheckEmail(string email)
+        //{
 
-            string action = HttpContext.Session.GetString("action");
-            int duplication;
-            if (action == "Add") { duplication = 0; }
-            else { duplication = 1; }
+        //    string action = HttpContext.Session.GetString("action");
+        //    int duplication;
+        //    if (action == "Add") { duplication = 0; }
+        //    else { duplication = 1; }
 
-            var customerOptions = new QueryOptions<Customer> { Where = c => c.Email == email };
+        //    var customerOptions = new QueryOptions<Customer> { Where = c => c.Email == email };
 
-                IEnumerable<Customer> custs = data.Customers.List(customerOptions);
+        //        IEnumerable<Customer> custs = data.Customers.List(customerOptions);
 
-                bool uniqueemail = false;
+        //        bool uniqueemail = false;
 
-                if (custs.Count() > duplication)
+        //        if (custs.Count() > duplication)
 
-                {
-                    uniqueemail = false;
-                }
-                else uniqueemail = true;
-                if (uniqueemail == true)
+        //        {
+        //            uniqueemail = false;
+        //        }
+        //        else uniqueemail = true;
+        //        if (uniqueemail == true)
 
-                    return Json(true);
+        //            return Json(true);
 
-                else
-                return Json($"The customer email: {email} already exists.");
+        //        else
+        //        return Json($"The customer email: {email} already exists.");
 
-            }
+        //    }
         }
 
     }
