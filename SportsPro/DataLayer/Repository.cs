@@ -47,12 +47,9 @@ namespace SportsPro.DataLayer
             }
             if (options.HasWhere)
             {
-
                 foreach (var clause in options.WhereClauses)
                 {
-
                     query = query.Where(clause);
-
                 }
             }
             return query.FirstOrDefault();

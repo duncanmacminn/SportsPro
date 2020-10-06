@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using SportsPro.DataLayer;
 using SportsPro.Models;
 
@@ -16,14 +17,19 @@ namespace SportsPro.Areas.Admin.Controllers
            
         }
 
-        public JsonResult CheckEmail(int customerID)
+        public JsonResult CheckEmail(string email)
         {
+            string action = HttpContext.Session.GetString("action");
+            int duplication;
+            if (action == "Add") { duplication = 0; }
+            else { duplication = 1; }
+
             var validate = new Validate(TempData);
-            validate.CheckEmail(customerID, customerData);
+            validate.CheckEmail(email, customerData, duplication);
             if (validate.IsValid)
             {
-               // validate.MarkGenreChecked();
-                return Json(true);
+               validate.MarkEmailChecked();
+               return Json(true);
             }
             else
             {

@@ -65,11 +65,10 @@ namespace SportsPro.Controllers
             var validate = new Validate(TempData);
             if (!validate.IsEmailChecked)
             {
-                validate.CheckEmail(customer.CustomerID, data.Customers, duplication);
+                validate.CheckEmail(customer.Email, data.Customers, duplication);
                 if (!validate.IsValid)
                 {
-                    ModelState.AddModelError(nameof(customer.CustomerID), validate.ErrorMessage);
-
+                    ModelState.AddModelError(nameof(customer.Email), validate.ErrorMessage);
                 }   
             }
             if (ModelState.IsValid)
@@ -80,7 +79,7 @@ namespace SportsPro.Controllers
                     data.Customers.Update(customer);
                 data.Customers.Save();
                 validate.ClearEmail();
-                TempData["message"] = $"{customer.FullName} added to customers.";
+                TempData["message"] = $"{customer.FullName} {action}ed to customers.";
                 return RedirectToAction("List", "Customer");
             }
             else
