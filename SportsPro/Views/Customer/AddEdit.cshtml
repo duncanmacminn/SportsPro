@@ -3,8 +3,7 @@
     string title = ViewBag.Action + " Customer";
     ViewData["Title"] = title;
 }
-<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+<partial name="_jQueryLibsPartial"/>
 <h1>@title</h1>
 <form asp-action="Edit" methid="post">
     <div asp-validation-summary="All" class="text-danger"></div>
