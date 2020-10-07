@@ -41,19 +41,22 @@
             </nav>
         </nav>
     </header>
-    <TempMessage Message=@TempData["message"]></TempMessage>
-    @if (TempData.Keys.Contains("message"))
+    @*<TempMessage/>*@
+    @*@if (TempData.Keys.Contains("message"))
     {
+        <TempMessage Message=@TempData["message"]></TempMessage>
         <h3 class="bg-info text-center text-white p-2">@TempData["message"]</h3>
-    }
+    }*@
     <div class="container">
         <main role="main" class="pb-5">
+            <TempMessage></TempMessage>
             @RenderBody()
         </main>
     </div>
 
     <footer class="border-top footer text-muted">
-        <div class="container">&copy; @DateTime.Now.Year - SportsPro</div>
+        <vc:copyright></vc:copyright>
+        @*<div class="container">&copy; @DateTime.Now.Year - SportsPro</div>*@
     </footer>
 </body>
 </html>
