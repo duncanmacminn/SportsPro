@@ -25,6 +25,7 @@ namespace SportsPro
             services.AddMemoryCache();
             services.AddSession();
             services.AddControllersWithViews();
+            services.AddRazorPages();
 
             services.AddTransient<ISportsProUnitOfWork, SportsProUnitOfWork>();
 
@@ -46,6 +47,7 @@ namespace SportsPro
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseDatabaseErrorPage();
             }
             else
             {
@@ -58,6 +60,7 @@ namespace SportsPro
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseSession();
@@ -67,6 +70,7 @@ namespace SportsPro
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
             });
         }
     }

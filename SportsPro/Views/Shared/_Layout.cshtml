@@ -1,6 +1,6 @@
 ﻿@{ 
-    string controller = ViewContext.RouteData.Values["controller"].ToString();
-    string action = ViewContext.RouteData.Values["action"].ToString();
+    string controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    string action = ViewContext.RouteData.Values["action"]?.ToString();
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -14,7 +14,7 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    
+    @RenderSection("scripts", false)
 </head>
 <body>
     <header>
@@ -36,16 +36,12 @@
                     <a class="nav-item nav-link @(controller == "Registration"? "active" : "")" asp-controller="Registration" asp-action="GetCustomer">Registrations</a>
                 </div>
                 <div class="navbar-nav navbar-right">
+                    <partial name="_LoginPartial"/>
                     <a class="nav-item nav-link @(controller == "Home" && action =="About" ? "active" : "")" asp-controller="Home" asp-action="About">About</a>
                 </div>
             </nav>
         </nav>
     </header>
-    @*<TempMessage Message=@TempData["message"]></TempMessage>
-    @if (TempData.Keys.Contains("message"))
-    {
-        <h3 class="bg-info text-center text-white p-2">@TempData["message"]</h3>
-    }*@
     <TempMessage></TempMessage>
     <div class="container">
         <main role="main" class="pb-5">
@@ -55,7 +51,6 @@
 
     <footer class="border-top footer text-muted">
         <vc:copyright></vc:copyright>    
-        @*<div class="container">&copy; @DateTime.Now.Year - SportsPro</div>*@
     </footer>
 </body>
 </html>

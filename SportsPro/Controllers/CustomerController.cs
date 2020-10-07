@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace SportsPro.Controllers
 {
+    [Authorize(Roles ="Admin")]
     public class CustomerController : Controller
     {
         private ISportsProUnitOfWork data { get; set; }
