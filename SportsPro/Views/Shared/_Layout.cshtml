@@ -41,11 +41,12 @@
             </nav>
         </nav>
     </header>
-    <TempMessage Message=@TempData["message"]></TempMessage>
+    @*<TempMessage Message=@TempData["message"]></TempMessage>
     @if (TempData.Keys.Contains("message"))
     {
         <h3 class="bg-info text-center text-white p-2">@TempData["message"]</h3>
-    }
+    }*@
+    <TempMessage></TempMessage>
     <div class="container">
         <main role="main" class="pb-5">
             @RenderBody()
