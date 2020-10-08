@@ -3,10 +3,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
 using Microsoft.EntityFrameworkCore;
 using SportsPro.Models;
-using SportsPro.DataLayer;
+using SportsPro.DataLayer; // add this
+using Microsoft.AspNetCore.Identity; // add this
+
 
 namespace SportsPro
 {
@@ -34,6 +35,14 @@ namespace SportsPro
             services.AddDbContext<SportsProContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("SportsPro")));
+
+            // add this
+            services.AddIdentity<User, IdentityRole>(options => {
+                options.Password.RequiredLength = 6;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireDigit = false;
+            }).AddEntityFrameworkStores<SportsProContext>()
+              .AddDefaultTokenProviders();
 
             services.AddRouting(options => {
                 options.LowercaseUrls = true;
