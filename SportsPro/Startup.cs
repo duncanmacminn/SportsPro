@@ -67,12 +67,6 @@ namespace SportsPro
 
             app.UseEndpoints(endpoints =>
             {
-                // route for Admin area
-                endpoints.MapAreaControllerRoute(
-                    name: "admin",
-                    areaName: "Admin",
-                    pattern: "Admin/{controller=User}/{action=Index}/{id?}");
-
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
